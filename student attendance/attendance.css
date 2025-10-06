@@ -1,0 +1,77 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f6f9;
+  margin: 0;
+  padding: 0;
+}
+header {
+  background: #6a1b9a;
+  color: white;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 1rem;
+}
+nav ul li a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+main {
+  padding: 1.5rem;
+  text-align: center;
+}
+select,
+input[type="date"],
+button {
+  padding: 0.5rem;
+  margin: 0.5rem;
+  font-size: 1rem;
+}
+.student-list {
+  margin: 1rem auto;
+  width: 50%;
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  text-align: left;
+}
+.student-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid #ddd;
+}
+.attendance-table {
+  margin: 2rem auto;
+  border-collapse: collapse;
+  width: 90%;
+  background: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.attendance-table th,
+.attendance-table td {
+  border: 1px solid #ddd;
+  padding: 0.6rem;
+  text-align: center;
+}
+.attendance-table th {
+  background: #1565c0;
+  color: white;
+}
+.present {
+  color: green;
+  font-weight: bold;
+}
+.absent {
+  color: red;
+  font-weight: bold;
+}

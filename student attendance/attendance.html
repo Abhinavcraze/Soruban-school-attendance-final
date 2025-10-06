@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mark Attendance - Soruban Vidhyalaya</title>
+  <link rel="stylesheet" href="attendance.css">
+</head>
+
+<body>
+
+  <header>
+    <h1>
+      Mark Attendance
+    </h1>
+    <nav>
+      <ul>
+        <li>
+          <a href="admindashboard.html">Dashboard</a>
+        </li>
+        <li>
+          <a href="attendancereport.html">Attendancereport</a>
+        </li>
+        <li>
+          <a href="login.html">Logout</a>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Select Class & Date</h2>
+    <select id="classDropdown">
+      <option value="">-- Select Class --</option>
+      <option value="6">Class 6</option>
+      <option value="7">Class 7</option>
+      <option value="8">Class 8</option>
+      <option value="9">Class 9</option>
+      <option value="10">Class 10</option>
+    </select>
+
+    <input type="date" id="attendanceDate">
+    <div id="studentList" class="student-list" style="display:none;"></div>
+    <button id="saveBtn" style="display:none;">
+      Save Attendance
+    </button>
+    <div id="attendanceTableSection"></div>
+  </main>
+
+  <!-- Footer -->
+  <footer style="text-align:center; margin-top:2rem;">
+    &copy; 2025 Soruban Vidhyalaya
+  </footer>
+
+  <script src="attendance.js"></script>
+  <script src="auth.js" defer></script>
+</body>
+
+</html>

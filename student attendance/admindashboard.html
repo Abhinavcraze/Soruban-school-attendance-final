@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Soruban Vidhyalaya</title>
+    <link rel="stylesheet" href="admindashboard.css">
+</head>
+<body>
+    <header>
+        <h1>Soruban Vidhyalaya (Admin)</h1>
+        <nav>
+            <ul>
+                <li><a href="admindashboard.html">Dashboard</a></li>
+                <li><a href="addstudents.html">Add Students</a></li>
+                <li><a href="attendance.html">Mark Attendance</a></li>
+                <li><a href="attendancereport.html">Attendance Report</a></li>
+                <li><a href="#" class="logout-link">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <h2>Select a Class to View Students</h2>
+        <div class="class-buttons">
+            <button class="class-btn" data-class="6">Class 6</button>
+            <button class="class-btn" data-class="7">Class 7</button>
+            <button class="class-btn" data-class="8">Class 8</button>
+            <button class="class-btn" data-class="9">Class 9</button>
+            <button class="class-btn" data-class="10">Class 10</button>
+            <button class="class-btn" data-class="all">View All</button>
+        </div>
+        <section id="studentDataSection" class="hidden">
+            <h2 id="classTitle"></h2>
+            <table class="student-table">
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Name</th>
+                        <th>Class</th>
+                        <th>Roll No</th>
+                    </tr>
+                </thead>
+                <tbody id="studentTableBody"></tbody>
+            </table>
+            <div id="paginationControls"></div>
+        </section>
+    </main>
+    <footer>
+        &copy; 2025 Soruban Vidhyalaya
+    </footer>
+    <script src="admindashboard.js"></script>
+    <script src="auth.js" defer></script>
+</body>
+</html>

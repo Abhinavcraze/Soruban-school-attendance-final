@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Report - Soruban Vidhyalaya</title>
+    <link rel="stylesheet" href="attendancereport.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1>Attendance Reports</h1>
+        <nav>
+            <ul>
+                <li><a href="admindashboard.html">Dashboard</a></li>
+                <li><a href="attendance.html">Mark Attendance</a></li>
+                <li><a href="#" class="logout-link">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section class="report-card">
+            <h2>Custom Date Range Report</h2>
+            <p class="description">Analyze attendance for all students between two specific dates.</p>
+            <div class="input-group">
+                <div class="input-field"><label for="startDate">Start Date</label><input type="date" id="startDate"></div>
+                <div class="input-field"><label for="endDate">End Date</label><input type="date" id="endDate"></div>
+                <button id="viewDateRangeBtn">Generate Report</button>
+            </div>
+            <div id="dateRangeReportResult"></div>
+        </section>
+        <section class="report-card">
+            <h2>Monthly Summary Report</h2>
+            <p class="description">View a complete attendance percentage summary for an entire class for a specific month.</p>
+            <div class="input-group">
+                <div class="input-field"><label for="reportMonth">Select Month</label><input type="month" id="reportMonth"></div>
+                <div class="input-field">
+                <label for="classDropdown">Select Class</label>
+                <select id="classDropdown">
+                    <option value="">-- Select Class --</option>
+                    <option value="6">Class 6</option><option value="7">Class 7</option><option value="8">Class 8</option><option value="9">Class 9</option><option value="10">Class 10</option>
+                </select>
+                </div>
+                <button id="viewMonthlySummaryBtn">Generate Summary</button>
+            </div>
+            <div id="monthlySummaryResult"></div>
+        </section>
+    </main>
+    
+    <footer>
+        &copy; 2025 Soruban Vidhyalaya
+    </footer>
+    <script src="attendancereport.js"></script>
+    <script src="auth.js" defer></script>
+</body>
+</html>
