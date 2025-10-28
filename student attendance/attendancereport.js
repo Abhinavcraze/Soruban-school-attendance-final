@@ -12,6 +12,9 @@ const classDropdown = document.getElementById("classDropdown");
 const viewMonthlySummaryBtn = document.getElementById("viewMonthlySummaryBtn");
 const monthlySummaryResultDiv = document.getElementById("monthlySummaryResult");
 
+const reportDateInput = document.getElementById("reportDate");
+const viewByDateBtn = document.getElementById("viewByDate");
+const dateReportDiv = document.getElementById("dateReport");
 
 let dateRangeCache = [];
 let drCurrentPage = 1;
@@ -292,4 +295,61 @@ function renderMonthlySummary(summaryData, month, selectedClass) {
     `;
     
     monthlySummaryResultDiv.innerHTML = headerHTML + tableHTML;
+}
+
+
+// --- View By Date ---
+viewByDateBtn.addEventListener("click", () => {
+  const selectedDate = reportDateInput.value;
+  if (!selectedDate) return alert("Select a date!");
+
+  const tx = db.transaction("attendance", "readonly");
+  const store = tx.objectStore("attendance");
+  const index = store.index("Date");
+  lastDateRecords = [];
+
+  index.openCursor(IDBKeyRange.only(selectedDate)).onsuccess = e => {
+    const cursor = e.target.result;
+    if (cursor) {
+      lastDateRecords.push(cursor.value);
+      cursor.continue();
+    } else {
+      renderTable(lastDateRecords, selectedDate);
+    }
+  };
+});
+
+// --- Render Table ---
+function renderTable(records, selectedDate) {
+  if (records.length === 0) {
+    dateReportDiv.innerHTML = `<p>No records found</p>`;
+    return;
+  }
+
+  dateReportDiv.innerHTML = `
+    <h3>Attendance on ${selectedDate}</h3>
+    <table class="attendance-table">
+      <thead><tr><th>Name</th><th>Class</th><th>Status</th></tr></thead>
+      <tbody>
+        ${records.map(r => `
+          <tr>
+            <td>${r.name}</td>
+            <td>${r.class}</td>
+            <td class="${r.status === "Present" ? "present" : "absent"}">${r.status}</td>
+          </tr>`).join("")}
+      </tbody>
+    </table>
+
+    <div class="attendance-buttons">
+      <button id="markPresent">Present</button>
+      <button id="markAbsent">Absent</button>
+    </div>
+  `;
+
+  document.getElementById("markPresent").addEventListener("click", () =>
+    renderTable(lastDateRecords.filter(r => r.status === "Present"), selectedDate)
+  );
+  document.getElementById("markAbsent").addEventListener("click", () =>
+    renderTable(lastDateRecords.filter(r => r.status === "Absent"), selectedDate)
+  );
 }

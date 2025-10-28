@@ -78,7 +78,6 @@ saveBtn.addEventListener("click", function () {
   };
 
   tx.oncomplete = () => {
-    // 2️⃣ Save new records
     const tx2 = db.transaction("attendance", "readwrite");
     const store2 = tx2.objectStore("attendance");
     attendanceData.forEach(rec => store2.add(rec));
