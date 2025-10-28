@@ -130,9 +130,166 @@ function changeItemsPerPage(value) {
     drCurrentPage = 1; 
     renderDateRangeReport();
 }
+//-------------------------------------------
+viewMonthlySummaryBtn.addEventListener("click", async () => {
+    if (!db) {
+        return alert("Database is not ready. Please wait a moment.");
+    }
+
+    const monthValue = reportMonthInput.value; 
+    const selectedClass = classDropdown.value;
+
+    if (!monthValue) {
+        return alert("Please select a month.");
+    }
+    if (!selectedClass) {
+        return alert("Please select a class.");
+    }
+    
+    monthlySummaryResultDiv.innerHTML = '<p>Generating report... Please wait.</p>';
+
+    const [year, month] = monthValue.split('-').map(Number);
+    
+    const startDate = `${year}-${String(month).padStart(2, '0')}-01`; 
+
+    const nextMonthDate = new Date(year, month, 1); 
+    const exclusiveEndDate = nextMonthDate.toISOString().split('T')[0]; 
+
+    try {
+        const [allStudents, attendanceRecords] = await Promise.all([
+            getStudentsByClass(selectedClass),
+            getAttendanceInRange(startDate, exclusiveEndDate)
+        ]);
+
+        const summaryData = processMonthlySummary(allStudents, attendanceRecords);
+
+        renderMonthlySummary(summaryData, monthValue, selectedClass);
+
+    } 
+    catch (error) {
+        console.error("Error generating monthly report:", error);
+        alert("An error occurred while generating the monthly report.");
+        monthlySummaryResultDiv.innerHTML = `<p class="error-message">Error: ${error.message}. Check console for details.</p>`;
+    }
+});
 
 
-viewMonthlySummaryBtn.addEventListener("click", async () => { /* ... */ });
-function renderMonthlySummary(summaryData, month, selectedClass) { /* ... */ }
-function getStudentsByClass(classNumber) { /* ... */ }
-function getAttendanceInRange(startDate, endDate) { /* ... */ }
+function getStudentsByClass(classNumber) {
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction("students", "readonly");
+        const store = tx.objectStore("students");
+        
+        let req;
+        if (classNumber === 'all') {
+            req = store.getAll();
+        } else {
+            const index = store.index("Class"); 
+            req = index.getAll(parseInt(classNumber));
+        }
+
+        req.onsuccess = e => resolve(e.target.result);
+        req.onerror = e => reject(e.target.error);
+    });
+}
+
+
+function getAttendanceInRange(startDateString, exclusiveEndDateString) {
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction("attendance", "readonly");
+        const index = tx.objectStore("attendance").index("Date"); 
+        
+        const range = IDBKeyRange.bound(startDateString, exclusiveEndDateString, false, true);
+        const request = index.getAll(range);
+
+        request.onsuccess = e => resolve(e.target.result);
+        request.onerror = e => reject(e.target.error);
+    });
+}
+
+
+function processMonthlySummary(allStudents, attendanceRecords) {
+    const studentAttendanceMap = attendanceRecords.reduce((map, record) => {
+        const studentId = record.studentId;
+        if (!map[studentId]) {
+            map[studentId] = { present: 0, absent: 0, total: 0 };
+        }
+        
+        map[studentId].total++;
+        if (record.status === 'Present') {
+            map[studentId].present++;
+        } else {
+            map[studentId].absent++;
+        }
+        return map;
+    }, {});
+
+    const summary = allStudents.map(student => {
+        const studentId = student.StudentId;
+        const attendance = studentAttendanceMap[studentId] || { present: 0, absent: 0, total: 0 };
+
+        const attendancePercentage = attendance.total > 0
+            ? ((attendance.present / attendance.total) * 100).toFixed(2)
+            : 'N/A';
+        
+        return {
+            name: student.Name,
+            class: student.Class,
+            rollNo: student.RollNo,
+            presentCount: attendance.present,
+            absentCount: attendance.absent,
+            totalDays: attendance.total,
+            percentage: attendancePercentage
+        };
+    });
+
+    return summary;
+}
+
+function renderMonthlySummary(summaryData, month, selectedClass) {
+    monthlySummaryResultDiv.innerHTML = ''; // Clear previous results
+
+    if (summaryData.length === 0) {
+        monthlySummaryResultDiv.innerHTML = `<p>No students found in Class ${selectedClass}.</p>`;
+        return;
+    }
+
+    const totalRecords = summaryData.reduce((sum, s) => sum + s.totalDays, 0);
+    const monthText = new Date(`${month}-01`).toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+
+    let headerHTML = `<h3>Monthly Attendance Summary for Class ${selectedClass} (${monthText})</h3>`;
+
+    if (totalRecords === 0) {
+        headerHTML += `<p>No attendance records found for this class in ${monthText}.</p>`;
+        monthlySummaryResultDiv.innerHTML = headerHTML;
+        return;
+    }
+
+    const tableHTML = `
+        <table class="summary-table">
+            <thead>
+                <tr>
+                    <th>Roll No</th>
+                    <th>Student Name</th>
+                    <th>Total Days</th>
+                    <th>Present</th>
+                    <th>Absent</th>
+                    <th>Attendance %</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${summaryData.sort((a, b) => a.rollNo - b.rollNo).map(s => `
+                    <tr>
+                        <td>${s.rollNo}</td>
+                        <td>${s.name}</td>
+                        <td>${s.totalDays}</td>
+                        <td class="status-present">${s.presentCount}</td>
+                        <td class="status-absent">${s.absentCount}</td>
+                        <td><strong>${s.percentage}${s.percentage !== 'N/A' ? '%' : ''}</strong></td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+    
+    monthlySummaryResultDiv.innerHTML = headerHTML + tableHTML;
+}

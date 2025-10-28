@@ -11,6 +11,7 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 nav ul {
   list-style: none;
@@ -18,9 +19,12 @@ nav ul {
   gap: 1rem;
 }
 nav ul li a {
-  color: white;
   text-decoration: none;
-  font-weight: bold;
+  color: #fff;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 5px;
+  transition: 0.3s ease;
 }
 main {
   padding: 1.5rem;
