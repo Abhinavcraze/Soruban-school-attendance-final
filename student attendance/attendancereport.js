@@ -4,6 +4,7 @@ let db;
 
 const startDateInput = document.getElementById("startDate");
 const endDateInput = document.getElementById("endDate");
+const drClassDropdown = document.getElementById("drClassDropdown");
 const viewDateRangeBtn = document.getElementById("viewDateRangeBtn");
 const dateRangeReportResultDiv = document.getElementById("dateRangeReportResult");
 
@@ -23,12 +24,20 @@ let drCurrentFilter = 'all';
 
 
 const request = indexedDB.open(DB_NAME, DB_VERSION);
+request.onupgradeneeded = e => {
+    const db = e.target.result;
+    if (!db.objectStoreNames.contains('attendance')) {
+        const store = db.createObjectStore('attendance', { keyPath: 'id', autoIncrement: true });
+        store.createIndex('Date', 'date', { unique: false });
+    }
+};
 request.onsuccess = e => { db = e.target.result; };
 request.onerror = e => console.error("DB error:", e.target.error);
 
 
 viewDateRangeBtn.addEventListener("click", () => {
     const startDate = startDateInput.value, endDate = endDateInput.value;
+    const selectedClass = drClassDropdown.value;
     if (!startDate || !endDate) return alert("Please select both a start and end date.");
     if (startDate > endDate) return alert("Start date cannot be after the end date.");
     
@@ -38,7 +47,14 @@ viewDateRangeBtn.addEventListener("click", () => {
     const request = index.getAll(range);
 
     request.onsuccess = e => {
-        dateRangeCache = e.target.result;
+        let records = e.target.result;
+
+        if (selectedClass !== 'all') {
+            const classNumber = parseInt(selectedClass);
+            records = records.filter(r => r.class === classNumber); 
+        }
+
+        dateRangeCache = records;
         drCurrentPage = 1; 
         drCurrentFilter = 'all'; 
         renderDateRangeReport(); 
@@ -52,11 +68,11 @@ function renderDateRangeReport(newFilter = null, page = null) {
     }
     if (page) drCurrentPage = page;
 
+    // Filter by Status (present/absent/all) from the dateRangeCache
     const filteredRecords = drCurrentFilter === 'all'
         ? dateRangeCache
         : dateRangeCache.filter(r => r.status.toLowerCase() === drCurrentFilter);
 
- 
     const totalItems = filteredRecords.length;
     const totalPages = Math.ceil(totalItems / drItemsPerPage);
     if (drCurrentPage > totalPages) drCurrentPage = totalPages || 1;
@@ -64,7 +80,8 @@ function renderDateRangeReport(newFilter = null, page = null) {
     const paginatedRecords = filteredRecords.slice(startIndex, startIndex + drItemsPerPage);
 
     if (dateRangeCache.length === 0) {
-        dateRangeReportResultDiv.innerHTML = `<p>No records found between ${startDateInput.value} and ${endDateInput.value}.</p>`;
+        const selectedClass = drClassDropdown.value !== 'all' ? ` for Class ${drClassDropdown.value}` : '';
+        dateRangeReportResultDiv.innerHTML = `<p>No records found between ${startDateInput.value} and ${endDateInput.value}${selectedClass}.</p>`;
         return;
     }
 
@@ -77,6 +94,7 @@ function renderDateRangeReport(newFilter = null, page = null) {
 
 
 function buildFilterControls() {
+    // Counts are now based on the dateRangeCache, which is already filtered by date and class
     const allCount = dateRangeCache.length;
     const presentCount = dateRangeCache.filter(r => r.status === 'Present').length;
     const absentCount = dateRangeCache.filter(r => r.status === 'Absent').length;
