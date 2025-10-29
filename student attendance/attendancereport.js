@@ -149,14 +149,17 @@ viewMonthlySummaryBtn.addEventListener("click", async () => {
         return alert("Please select a class.");
     }
     
-    monthlySummaryResultDiv.innerHTML = '<p>Generating report... Please wait.</p>';
-
-    const [year, month] = monthValue.split('-').map(Number);
     
+    //"2025-10"
+    const [year, month] = monthValue.split('-').map(Number);
+    //[2025, 10]
     const startDate = `${year}-${String(month).padStart(2, '0')}-01`; 
-
+    //"2025-10-01"
     const nextMonthDate = new Date(year, month, 1); 
+    //November 1st, 2025
     const exclusiveEndDate = nextMonthDate.toISOString().split('T')[0]; 
+    //"2025-11-01T00:00:00.000Z"
+    //2025-11-01
 
     try {
         const [allStudents, attendanceRecords] = await Promise.all([
