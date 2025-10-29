@@ -27,7 +27,7 @@ const dbReady = new Promise((resolve, reject) => {
         }
     };
 
-    request.onsuccess = (e) => {
+    request.onsuccess = (e) =>{
         db = e.target.result;
         console.log("Database connection successful.");
         seedInitialData().then(() => resolve(db)).catch(reject);
